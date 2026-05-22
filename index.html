@@ -5,687 +5,625 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Leaf Identification And Distribution Mapping</title>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
 <style>
-* { box-sizing: border-box; }
 
-body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial;
-    background: #f5f5f5;
+*{
+    box-sizing:border-box;
 }
 
-.container {
-    width: 95%;
-    margin: auto;
-    padding: 15px;
+body{
+    margin:0;
+    padding:0;
+    font-family:Arial;
+    background:#f5f5f5;
 }
 
-.title {
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 15px;
-    color: #1b5e20;
-    line-height: 1.3;
+.container{
+    width:95%;
+    margin:auto;
+    padding:15px;
 }
 
-/* DESKTOP: side by side */
-.row {
-    display: flex;
-    gap: 15px;
+.title{
+    text-align:center;
+    font-size:24px;
+    margin-bottom:15px;
+    color:#1b5e20;
 }
 
-.panel {
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+/* ROW */
+
+.row{
+    display:flex;
+    gap:15px;
 }
 
-.left  { width: 35%; }
-.right { width: 65%; position: relative; }
-
-#map {
-    height: 500px;
-    width: 100%;
-    border-radius: 10px;
+.panel{
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
-/* MOBILE: stack vertically */
-@media (max-width: 700px) {
-    .title { font-size: 18px; }
+.left{
+    width:35%;
+}
 
-    .row {
-        flex-direction: column;
-        gap: 12px;
+.right{
+    width:65%;
+    position:relative;
+}
+
+#map{
+    width:100%;
+    height:500px;
+    border-radius:10px;
+}
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+    .row{
+        flex-direction:column;
     }
 
-    .left, .right { width: 100%; }
+    .left,
+    .right{
+        width:100%;
+    }
 
-    #map { height: 350px; }
+    #map{
+        height:350px;
+    }
 
-    .panel { padding: 12px; }
-
-    h2 { font-size: 16px; margin: 0 0 10px; }
+    .title{
+        font-size:18px;
+    }
 }
 
-button {
-    width: 100%;
-    padding: 12px 16px;
-    border: none;
-    background: #1b5e20;
-    color: white;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 10px;
-    font-size: 15px;
-    transition: background 0.2s, transform 0.1s;
+/* BUTTON */
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    background:#1b5e20;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+    margin-top:10px;
+    font-size:15px;
 }
 
-button:hover  { background: #2e7d32; }
-button:active { transform: scale(0.97); }
-
-/* FILE INPUT - mobile friendly */
-.file-label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #f1f8e9;
-    border: 2px dashed #81c784;
-    border-radius: 8px;
-    padding: 12px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #2e7d32;
-    margin-top: 5px;
+button:hover{
+    background:#2e7d32;
 }
 
-.file-label input { display: none; }
+/* FILE */
 
-.file-label .icon { font-size: 22px; }
-
-#fileName {
-    font-size: 12px;
-    color: #555;
-    margin-top: 5px;
-    word-break: break-all;
+.file-label{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#f1f8e9;
+    border:2px dashed #81c784;
+    border-radius:8px;
+    padding:12px;
+    cursor:pointer;
 }
 
-.result {
-    margin-top: 15px;
-    padding: 12px;
-    background: #e8f5e9;
-    border-radius: 8px;
-    font-size: 14px;
+.file-label input{
+    display:none;
 }
 
-.result h3 { margin: 0 0 8px; font-size: 15px; }
-.result p  { margin: 5px 0; }
-
-/* CONTACT BUTTON */
-#contactBtn {
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    z-index: 1000;
-    width: auto;
-    padding: 12px 20px;
-    background: #1b5e20;
-    color: white;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    font-size: 14px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    margin-top: 0;
+#fileName{
+    margin-top:5px;
+    font-size:12px;
+    color:#555;
 }
 
-#contactBtn:hover { background: #2e7d32; }
+/* RESULT */
+
+.result{
+    margin-top:15px;
+    padding:12px;
+    background:#e8f5e9;
+    border-radius:8px;
+}
+
+/* CONTACT */
+
+#contactBtn{
+    position:fixed;
+    bottom:20px;
+    left:20px;
+    z-index:1000;
+    width:auto;
+    padding:12px 20px;
+    border-radius:50px;
+}
 
 /* POPUP */
-.popup {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5);
+
+.popup{
+    display:none;
+    position:fixed;
+    z-index:2000;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
 }
 
-.popup-content {
-    background: white;
-    width: 90%;
-    max-width: 400px;
-    padding: 20px;
-    border-radius: 12px;
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    font-size: 14px;
+.popup-content{
+    background:white;
+    width:90%;
+    max-width:400px;
+    padding:20px;
+    border-radius:12px;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
 }
 
-.closeBtn {
-    float: right;
-    font-size: 26px;
-    cursor: pointer;
-    line-height: 1;
+.closeBtn{
+    float:right;
+    font-size:28px;
+    cursor:pointer;
 }
 
-/* =====================
-   PREDICTION ANIMATIONS
-   ===================== */
+/* IMAGE PREVIEW */
 
-#predictBtn {
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+#previewWrapper img{
+    width:100%;
+    margin-top:10px;
+    border-radius:10px;
+    max-height:220px;
+    object-fit:cover;
 }
 
-#predictBtn.loading {
-    background: #2e7d32;
-    box-shadow: 0 0 0 3px rgba(46,125,50,0.3);
-    cursor: not-allowed;
-    pointer-events: none;
+/* MAP LOADER */
+
+#mapOverlay{
+    display:none;
+    position:absolute;
+    inset:0;
+    background:rgba(255,255,255,0.6);
+    z-index:500;
+    border-radius:10px;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    color:#1b5e20;
 }
 
-#predictBtn::after {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 60%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-    animation: none;
+#mapOverlay.visible{
+    display:flex;
 }
 
-#predictBtn.loading::after { animation: btnShimmer 1.2s infinite; }
+/* POPUP FIX */
 
-@keyframes btnShimmer { to { left: 160%; } }
-
-.btn-spinner {
-    display: none;
-    width: 16px; height: 16px;
-    border: 2px solid rgba(255,255,255,0.4);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    flex-shrink: 0;
+.leaflet-popup-content-wrapper{
+    border-radius:12px;
+    padding:4px;
+    font-size:14px;
 }
 
-#predictBtn.loading .btn-spinner { display: block; }
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-#previewWrapper {
-    position: relative;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 10px;
+.leaflet-popup-content{
+    margin:10px 12px;
+    line-height:1.5;
 }
 
-#scanLine {
-    display: none;
-    position: absolute;
-    left: 0; top: 0;
-    width: 100%; height: 3px;
-    background: linear-gradient(90deg, transparent, #4caf50, #a5d6a7, #4caf50, transparent);
-    box-shadow: 0 0 12px 4px rgba(76,175,80,0.7);
-    animation: scanSweep 1.4s ease-in-out infinite;
-    z-index: 10;
+.leaflet-popup-tip{
+    background:white;
 }
 
-@keyframes scanSweep {
-    0%   { top: 0%;  opacity: 1; }
-    90%  { top: 95%; opacity: 1; }
-    100% { top: 95%; opacity: 0; }
+.leaflet-container{
+    z-index:1;
 }
 
-#previewWrapper.scanning::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0,30,0,0.35);
-    border-radius: 10px;
-    z-index: 5;
-    animation: overlayPulse 1.4s ease-in-out infinite;
+/* MARKER ANIMATION */
+
+@keyframes markerDrop{
+
+    0%{
+        transform:translateY(-30px) scale(0.6);
+        opacity:0;
+    }
+
+    60%{
+        transform:translateY(6px) scale(1.1);
+        opacity:1;
+    }
+
+    100%{
+        transform:translateY(0) scale(1);
+        opacity:1;
+    }
 }
 
-@keyframes overlayPulse {
-    0%, 100% { opacity: 0.6; }
-    50%       { opacity: 0.2; }
-}
-
-#previewWrapper.scanning::after {
-    content: '';
-    position: absolute;
-    inset: 6px;
-    background:
-        linear-gradient(#4caf50,#4caf50) top left/18px 2px no-repeat,
-        linear-gradient(#4caf50,#4caf50) top left/2px 18px no-repeat,
-        linear-gradient(#4caf50,#4caf50) top right/18px 2px no-repeat,
-        linear-gradient(#4caf50,#4caf50) top right/2px 18px no-repeat,
-        linear-gradient(#4caf50,#4caf50) bottom left/18px 2px no-repeat,
-        linear-gradient(#4caf50,#4caf50) bottom left/2px 18px no-repeat,
-        linear-gradient(#4caf50,#4caf50) bottom right/18px 2px no-repeat,
-        linear-gradient(#4caf50,#4caf50) bottom right/2px 18px no-repeat;
-    z-index: 9;
-    animation: bracketPulse 1.4s ease-in-out infinite;
-}
-
-@keyframes bracketPulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.4; }
-}
-
-#progressBarWrap {
-    display: none;
-    height: 5px;
-    background: #c8e6c9;
-    border-radius: 99px;
-    margin-top: 10px;
-    overflow: hidden;
-}
-
-#progressBar {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #1b5e20, #66bb6a);
-    border-radius: 99px;
-    transition: width 0.3s ease;
-}
-
-#statusText {
-    display: none;
-    font-size: 12px;
-    color: #2e7d32;
-    margin-top: 6px;
-    font-style: italic;
-    animation: statusFade 1.8s ease-in-out infinite;
-}
-
-@keyframes statusFade {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.4; }
-}
-
-.result { transition: opacity 0.5s ease, transform 0.5s ease; }
-
-.result.hidden {
-    opacity: 0;
-    transform: translateY(10px);
-    pointer-events: none;
-}
-
-.result.revealed {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.result p {
-    opacity: 0;
-    transform: translateX(-8px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.result.revealed p:nth-of-type(1){ opacity:1; transform:none; transition-delay:0.05s; }
-.result.revealed p:nth-of-type(2){ opacity:1; transform:none; transition-delay:0.18s; }
-.result.revealed p:nth-of-type(3){ opacity:1; transform:none; transition-delay:0.31s; }
-
-#mapOverlay {
-    display: none;
-    position: absolute;
-    inset: 0;
-    background: rgba(255,255,255,0.55);
-    backdrop-filter: blur(2px);
-    z-index: 500;
-    border-radius: 10px;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 14px;
-}
-
-#mapOverlay.visible { display: flex; }
-
-.map-spinner {
-    width: 52px; height: 52px;
-    position: relative;
-}
-
-.map-spinner span {
-    position: absolute;
-    inset: 0;
-    border: 3px solid #1b5e20;
-    border-radius: 50%;
-    animation: ripple 1.6s ease-out infinite;
-    opacity: 0;
-}
-
-.map-spinner span:nth-child(2){ animation-delay: 0.5s; }
-.map-spinner span:nth-child(3){ animation-delay: 1.0s; }
-
-@keyframes ripple {
-    0%   { transform: scale(0.3); opacity: 0.9; }
-    100% { transform: scale(1.6); opacity: 0;   }
-}
-
-.map-overlay-text {
-    color: #1b5e20;
-    font-weight: bold;
-    font-size: 14px;
-    background: rgba(255,255,255,0.85);
-    padding: 4px 14px;
-    border-radius: 20px;
-}
-
-@keyframes markerDrop {
-    0%   { transform: translateY(-30px) scale(0.6); opacity: 0; }
-    60%  { transform: translateY(6px)   scale(1.1); opacity: 1; }
-    100% { transform: translateY(0)     scale(1);   opacity: 1; }
-}
-
-/* Preview image */
-#previewWrapper img {
-    width: 100%;
-    border-radius: 10px;
-    max-height: 220px;
-    object-fit: cover;
-    display: block;
-}
 </style>
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body>
 
 <div class="container">
 
-    <h1 class="title">🌿 Leaf Identification And Distribution Mapping</h1>
+    <h1 class="title">
+        🌿 Leaf Identification And Distribution Mapping
+    </h1>
 
     <div class="row">
 
-        <!-- LEFT PANEL -->
+        <!-- LEFT -->
+
         <div class="panel left">
 
             <h2>Upload Leaf Image</h2>
 
-            <!-- Mobile-friendly file picker -->
             <label class="file-label">
-                <span class="icon">📷</span>
-                <span>Tap to choose or capture image</span>
-                <input type="file" id="imageInput" accept="image/*">
-            </label>
-            <div id="fileName">No file chosen</div>
 
-            <button id="predictBtn" onclick="predictLeaf()">
-                <span class="btn-spinner"></span>
-                <span id="btnLabel">Predict And Show Distribution</span>
+                <span>📷 Choose Image</span>
+
+                <input type="file"
+                       id="imageInput"
+                       accept="image/*">
+
+            </label>
+
+            <div id="fileName">
+                No file chosen
+            </div>
+
+            <div id="previewWrapper"></div>
+
+            <button onclick="predictLeaf()">
+                Predict And Show Distribution
             </button>
 
-            <div id="progressBarWrap"><div id="progressBar"></div></div>
-            <div id="statusText">Analyzing leaf patterns…</div>
+            <div class="result" id="result">
 
-            <div id="previewWrapper">
-                <div id="scanLine"></div>
-            </div>
+                <p>
+                    Species :
+                    <b><span id="species">-</span></b>
+                </p>
 
-            <div class="result hidden" id="result">
-                <h3 style="margin:0 0 8px;">Prediction Result</h3>
-                <p style="margin:4px 0;">Species : <b><span id="species">-</span></b></p>
-                <p style="margin:4px 0;">Confidence : <b><span id="confidence">-</span></b></p>
-                <p style="margin:4px 0;">Matching Trees : <b><span id="treecount">0</span></b></p>
+                <p>
+                    Confidence :
+                    <b><span id="confidence">-</span></b>
+                </p>
+
+                <p>
+                    Matching Trees :
+                    <b><span id="treecount">0</span></b>
+                </p>
+
             </div>
 
         </div>
 
-        <!-- RIGHT PANEL -->
+        <!-- RIGHT -->
+
         <div class="panel right">
+
             <div id="mapOverlay">
-                <div class="map-spinner"><span></span><span></span><span></span></div>
-                <div class="map-overlay-text">Plotting locations…</div>
+                Plotting locations...
             </div>
+
             <div id="map"></div>
+
         </div>
 
     </div>
 
 </div>
 
-<!-- CONTACT BUTTON -->
-<button id="contactBtn">Contact</button>
+<!-- CONTACT -->
 
-<!-- POPUP -->
+<button id="contactBtn">
+    Contact
+</button>
+
+<!-- CONTACT POPUP -->
+
 <div id="contactPopup" class="popup">
+
     <div class="popup-content">
+
         <span class="closeBtn">&times;</span>
+
         <h2>Share Tree Location Data</h2>
-        <p>If you find additional tree species locations, you can share your files with us.</p>
-        <p>Supported formats: <b>KMZ, KML, SHP, GPX</b></p>
-        <p>Send as attachment to:</p>
-        <p><b>speciesidendificationuom@gmail.com</b></p>
-        <button onclick="sendEmail()">Email Now</button>
+
+        <p>
+            Send KMZ, KML, SHP or GPX files to:
+        </p>
+
+        <p>
+            <b>speciesidendificationuom@gmail.com</b>
+        </p>
+
+        <button onclick="sendEmail()">
+            Email Now
+        </button>
+
     </div>
+
 </div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 
-// CUSTOM GREEN MARKER — circle with white border, popup works correctly
+/* MAP */
+
+const map = L.map('map').setView(
+    [12.3133, 76.6130],
+    16
+);
+
+L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+        attribution:'OpenStreetMap'
+    }
+).addTo(map);
+
+/* CUSTOM ICON */
+
 const greenIcon = L.divIcon({
-    className: 'green-marker',
-    html: '<div style="width:18px;height:18px;background:#2e7d32;border:3px solid white;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,0.5);"></div>',
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
-    popupAnchor: [0, -12]
+
+    className:'green-marker',
+
+    html:`
+        <div style="
+            width:18px;
+            height:18px;
+            background:#2e7d32;
+            border:3px solid white;
+            border-radius:50%;
+            box-shadow:0 2px 5px rgba(0,0,0,0.5);
+        "></div>
+    `,
+
+    iconSize:[18,18],
+    iconAnchor:[9,9],
+    popupAnchor:[0,-12]
 });
-
-// MAP SETUP
-let map = L.map('map').setView([12.3133, 76.6130], 16);
-
-const osm          = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'OpenStreetMap' });
-const esriSatellite= L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{ attribution:'Esri World Imagery' });
-const esriStreet   = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{ attribution:'Esri Street Map' });
-const googleSat    = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{ attribution:'Google Satellite' });
-const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',{ attribution:'Google Hybrid' });
-
-googleHybrid.addTo(map);
-
-L.control.layers({
-    "OpenStreetMap"   : osm,
-    "Google Hybrid"   : googleHybrid,
-    "Google Satellite": googleSat,
-    "Esri Satellite"  : esriSatellite,
-    "Esri Street"     : esriStreet
-}).addTo(map);
 
 let markers = [];
 
-// FILE INPUT - show filename
-document.getElementById('imageInput').addEventListener('change', function(){
+/* FILE PREVIEW */
+
+document
+.getElementById('imageInput')
+.addEventListener('change', function(){
+
     const file = this.files[0];
+
     if(file){
-        document.getElementById('fileName').textContent = file.name;
+
+        document
+        .getElementById('fileName')
+        .textContent = file.name;
+
         const reader = new FileReader();
+
         reader.onload = function(e){
-            const wrapper = document.getElementById('previewWrapper');
-            const oldImg = wrapper.querySelector('img');
-            if(oldImg) oldImg.remove();
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            wrapper.insertBefore(img, document.getElementById('scanLine'));
-        }
+
+            document
+            .getElementById('previewWrapper')
+            .innerHTML =
+            `<img src="${e.target.result}">`;
+        };
+
         reader.readAsDataURL(file);
     }
 });
 
-// ANIMATION HELPERS
-const statusMessages = [
-    'Analyzing leaf patterns…',
-    'Extracting vein features…',
-    'Matching species database…',
-    'Calculating confidence…',
-    'Fetching distribution data…'
-];
+/* PREDICT */
 
-let statusInterval = null;
-let progressInterval = null;
-
-function startLoadingUI(){
-    const btn = document.getElementById('predictBtn');
-    btn.classList.add('loading');
-    document.getElementById('btnLabel').textContent = 'Predicting…';
-
-    const wrapper = document.getElementById('previewWrapper');
-    wrapper.classList.add('scanning');
-    document.getElementById('scanLine').style.display = 'block';
-
-    document.getElementById('progressBarWrap').style.display = 'block';
-    document.getElementById('statusText').style.display = 'block';
-
-    let progress = 0;
-    progressInterval = setInterval(() => {
-        progress = Math.min(progress + Math.random() * 8, 85);
-        document.getElementById('progressBar').style.width = progress + '%';
-    }, 400);
-
-    let msgIdx = 0;
-    document.getElementById('statusText').textContent = statusMessages[0];
-    statusInterval = setInterval(() => {
-        msgIdx = (msgIdx + 1) % statusMessages.length;
-        document.getElementById('statusText').textContent = statusMessages[msgIdx];
-    }, 1600);
-
-    document.getElementById('mapOverlay').classList.add('visible');
-
-    const result = document.getElementById('result');
-    result.classList.remove('revealed');
-    result.classList.add('hidden');
-}
-
-function stopLoadingUI(success){
-    const btn = document.getElementById('predictBtn');
-    btn.classList.remove('loading');
-    document.getElementById('btnLabel').textContent = 'Predict And Show Distribution';
-
-    const wrapper = document.getElementById('previewWrapper');
-    wrapper.classList.remove('scanning');
-    document.getElementById('scanLine').style.display = 'none';
-
-    clearInterval(progressInterval);
-    clearInterval(statusInterval);
-
-    if(success){
-        document.getElementById('progressBar').style.width = '100%';
-        document.getElementById('statusText').textContent = 'Done!';
-        setTimeout(() => {
-            document.getElementById('progressBarWrap').style.display = 'none';
-            document.getElementById('statusText').style.display = 'none';
-            document.getElementById('progressBar').style.width = '0%';
-        }, 900);
-    } else {
-        document.getElementById('progressBarWrap').style.display = 'none';
-        document.getElementById('statusText').style.display = 'none';
-        document.getElementById('progressBar').style.width = '0%';
-    }
-
-    document.getElementById('mapOverlay').classList.remove('visible');
-}
-
-function revealResult(){
-    const result = document.getElementById('result');
-    result.classList.remove('hidden');
-    void result.offsetWidth;
-    result.classList.add('revealed');
-}
-
-// PREDICT FUNCTION
 async function predictLeaf(){
-    const imageInput = document.getElementById('imageInput');
-    const imageFile  = imageInput.files[0];
+
+    const imageFile =
+    document
+    .getElementById('imageInput')
+    .files[0];
 
     if(!imageFile){
-        alert("Please choose an image first");
+
+        alert("Choose image first");
         return;
     }
 
     const formData = new FormData();
-    formData.append('image', imageFile);
 
-    startLoadingUI();
+    formData.append(
+        'image',
+        imageFile
+    );
+
+    document
+    .getElementById('mapOverlay')
+    .classList
+    .add('visible');
 
     try{
-        document.getElementById('species').innerText    = '…';
-        document.getElementById('confidence').innerText = '…';
-        document.getElementById('treecount').innerText  = '…';
 
-        const response = await fetch('/predict', {
-            method : 'POST',
-            body   : formData
+        const response =
+        await fetch('/predict',{
+
+            method:'POST',
+            body:formData
         });
 
-        const data = await response.json();
-        console.log(data);
+        const data =
+        await response.json();
 
-        stopLoadingUI(true);
+        /* RESULT */
 
-        setTimeout(() => {
-            document.getElementById('species').innerText    = data.class;
-            document.getElementById('confidence').innerText = data.confidence + "%";
-            document.getElementById('treecount').innerText  = data.points ? data.points.length : 0;
-            revealResult();
-            document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 300);
+        document
+        .getElementById('species')
+        .innerText = data.class;
 
-        markers.forEach(marker => map.removeLayer(marker));
+        document
+        .getElementById('confidence')
+        .innerText = data.confidence + "%";
+
+        document
+        .getElementById('treecount')
+        .innerText =
+        data.points ? data.points.length : 0;
+
+        /* REMOVE OLD */
+
+        markers.forEach(marker => {
+            map.removeLayer(marker);
+        });
+
         markers = [];
 
+        /* ADD MARKERS */
+
         if(data.points && data.points.length > 0){
+
             data.points.forEach((point, i) => {
+
                 setTimeout(() => {
-                    const marker = L.marker([point.lat, point.lon], { icon: greenIcon }).addTo(map);
-                    marker.bindPopup(`<b>${point.name}</b>`, { maxWidth: 200 });
-                    marker.on('click', function(){ this.openPopup(); });
+
+                    const marker = L.marker(
+                        [point.lat, point.lon],
+                        {
+                            icon:greenIcon
+                        }
+                    ).addTo(map);
+
+                    marker.bindPopup(`
+                        <div style="
+                            text-align:center;
+                            min-width:150px;
+                        ">
+                            <b>${point.name}</b><br>
+                            Latitude : ${point.lat}<br>
+                            Longitude : ${point.lon}
+                        </div>
+                    `,{
+                        closeButton:true,
+                        autoClose:false,
+                        closeOnClick:false,
+                        maxWidth:220
+                    });
+
+                    marker.on('mouseover', function(){
+                        this.openPopup();
+                    });
+
+                    marker.on('mouseout', function(){
+                        this.closePopup();
+                    });
+
+                    marker.on('click', function(){
+                        this.openPopup();
+                    });
+
                     markers.push(marker);
+
                     const el = marker.getElement();
-                    if(el) el.style.animation = 'markerDrop 0.45s cubic-bezier(0.22,1,0.36,1) both';
+
+                    if(el){
+
+                        el.style.animation =
+                        'markerDrop 0.45s cubic-bezier(0.22,1,0.36,1) both';
+                    }
+
                 }, i * 80);
+
             });
 
             setTimeout(() => {
-                const group = L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.2));
-                // On mobile scroll to map
-                document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                const group =
+                L.featureGroup(markers);
+
+                map.fitBounds(
+                    group.getBounds().pad(0.2)
+                );
+
             }, data.points.length * 80 + 100);
         }
 
-    } catch(error){
-        console.log(error);
-        stopLoadingUI(false);
-        alert("Prediction failed. Please try again in a moment.");
     }
+    catch(error){
+
+        console.log(error);
+
+        alert("Prediction failed");
+    }
+
+    document
+    .getElementById('mapOverlay')
+    .classList
+    .remove('visible');
 }
 
-// EMAIL
+/* EMAIL */
+
 function sendEmail(){
-    const email = "speciesidendificationuom@gmail.com";
-    const subject = "Tree Species Location Data";
-    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${encodeURIComponent(subject)}`, "_blank");
+
+    const email =
+    "speciesidendificationuom@gmail.com";
+
+    const subject =
+    "Tree Species Location Data";
+
+    window.open(
+        `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${encodeURIComponent(subject)}`,
+        "_blank"
+    );
 }
 
-// CONTACT POPUP
-const contactBtn   = document.getElementById('contactBtn');
-const contactPopup = document.getElementById('contactPopup');
-const closeBtn     = document.querySelector('.closeBtn');
+/* CONTACT POPUP */
 
-contactBtn.addEventListener('click', () => { contactPopup.style.display = 'block'; });
-closeBtn.addEventListener('click',   () => { contactPopup.style.display = 'none';  });
-window.addEventListener('click', (e) => { if(e.target === contactPopup) contactPopup.style.display = 'none'; });
+const contactBtn =
+document.getElementById('contactBtn');
+
+const contactPopup =
+document.getElementById('contactPopup');
+
+const closeBtn =
+document.querySelector('.closeBtn');
+
+contactBtn.addEventListener(
+    'click',
+    () => {
+        contactPopup.style.display='block';
+    }
+);
+
+closeBtn.addEventListener(
+    'click',
+    () => {
+        contactPopup.style.display='none';
+    }
+);
+
+window.addEventListener(
+    'click',
+    (e) => {
+
+        if(e.target === contactPopup){
+
+            contactPopup.style.display='none';
+        }
+    }
+);
 
 </script>
+
 </body>
 </html>
