@@ -317,7 +317,7 @@ async function predictLeaf(){
         document.getElementById('confidence').innerText = '...';
         document.getElementById('treecount').innerText  = '...';
 
-        const response = await fetch('http://127.0.0.1:5000', {
+        const response = await fetch('/predict', {
             method : 'POST',
             body   : formData
         });
