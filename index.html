@@ -436,9 +436,9 @@ button:active { transform: scale(0.97); }
 
             <div class="result hidden" id="result">
                 <h3 style="margin:0 0 8px;">Prediction Result</h3>
-                <p style="margin:4px 0;"> Species : <b><span id="species">-</span></b></p>
-                <p style="margin:4px 0;"> Confidence : <b><span id="confidence">-</span></b></p>
-                <p style="margin:4px 0;"> Matching Trees : <b><span id="treecount">0</span></b></p>
+                <p style="margin:4px 0;">Species : <b><span id="species">-</span></b></p>
+                <p style="margin:4px 0;">Confidence : <b><span id="confidence">-</span></b></p>
+                <p style="margin:4px 0;">Matching Trees : <b><span id="treecount">0</span></b></p>
             </div>
 
         </div>
@@ -474,13 +474,13 @@ button:active { transform: scale(0.97); }
 
 <script>
 
-// CUSTOM GREEN PIN MARKER
+// CUSTOM GREEN MARKER — circle with white border, popup works correctly
 const greenIcon = L.divIcon({
-    className: '',
-    html: '<div style="position:relative;width:24px;height:34px;"><div style="width:24px;height:24px;background:#2e7d32;border:3px solid white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 6px rgba(0,0,0,0.6);"></div><div style="position:absolute;top:6px;left:6px;width:8px;height:8px;background:white;border-radius:50%;transform:rotate(45deg);"></div></div>',
-    iconSize: [24, 34],
-    iconAnchor: [12, 34],
-    popupAnchor: [0, -36]
+    className: 'green-marker',
+    html: '<div style="width:18px;height:18px;background:#2e7d32;border:3px solid white;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,0.5);"></div>',
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+    popupAnchor: [0, -12]
 });
 
 // MAP SETUP
@@ -647,7 +647,8 @@ async function predictLeaf(){
             data.points.forEach((point, i) => {
                 setTimeout(() => {
                     const marker = L.marker([point.lat, point.lon], { icon: greenIcon }).addTo(map);
-                    marker.bindPopup(`<b>${point.name}</b>`);
+                    marker.bindPopup(`<b>${point.name}</b>`, { maxWidth: 200 });
+                    marker.on('click', function(){ this.openPopup(); });
                     markers.push(marker);
                     const el = marker.getElement();
                     if(el) el.style.animation = 'markerDrop 0.45s cubic-bezier(0.22,1,0.36,1) both';
