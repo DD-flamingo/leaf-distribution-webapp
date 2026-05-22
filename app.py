@@ -101,7 +101,7 @@ def predict():
 
         # REJECT LOW CONFIDENCE
 
-        if confidence < 50:
+        if confidence < 70:
             return jsonify({
                 'class': 'Uncertain',
                 'confidence': round(confidence, 2),
