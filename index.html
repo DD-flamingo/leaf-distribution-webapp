@@ -330,9 +330,9 @@ button:active { transform: scale(0.97); }
     transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
-.result.revealed p:nth-child(1){ opacity:1; transform:none; transition-delay:0.05s; }
-.result.revealed p:nth-child(2){ opacity:1; transform:none; transition-delay:0.18s; }
-.result.revealed p:nth-child(3){ opacity:1; transform:none; transition-delay:0.31s; }
+.result.revealed p:nth-of-type(1){ opacity:1; transform:none; transition-delay:0.05s; }
+.result.revealed p:nth-of-type(2){ opacity:1; transform:none; transition-delay:0.18s; }
+.result.revealed p:nth-of-type(3){ opacity:1; transform:none; transition-delay:0.31s; }
 
 #mapOverlay {
     display: none;
@@ -474,12 +474,19 @@ button:active { transform: scale(0.97); }
 
 <script>
 
-// FIX LEAFLET DEFAULT MARKER ICON (prevents black shadow bug)
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+// CUSTOM GREEN CIRCLE MARKER (fixes black shadow bug with Google tiles)
+const greenIcon = L.divIcon({
+    className: '',
+    html: `<div style="
+        width:14px;height:14px;
+        background:#1b5e20;
+        border:2px solid white;
+        border-radius:50%;
+        box-shadow:0 1px 4px rgba(0,0,0,0.5);
+    "></div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+    popupAnchor: [0, -10]
 });
 
 // MAP SETUP
@@ -636,8 +643,6 @@ async function predictLeaf(){
             document.getElementById('confidence').innerText = data.confidence + "%";
             document.getElementById('treecount').innerText  = data.points ? data.points.length : 0;
             revealResult();
-
-            // On mobile, scroll down to result
             document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }, 300);
 
@@ -647,7 +652,7 @@ async function predictLeaf(){
         if(data.points && data.points.length > 0){
             data.points.forEach((point, i) => {
                 setTimeout(() => {
-                    const marker = L.marker([point.lat, point.lon]).addTo(map);
+                    const marker = L.marker([point.lat, point.lon], { icon: greenIcon }).addTo(map);
                     marker.bindPopup(`<b>${point.name}</b>`);
                     markers.push(marker);
                     const el = marker.getElement();
