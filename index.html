@@ -3,117 +3,410 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Leaf Identification And Distribution Mapping</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
 <style>
-*{ box-sizing:border-box; }
-body{ margin:0; padding:0; font-family:Arial; background:#f5f5f5; }
-.container{ width:95%; margin:auto; padding:15px; }
-.title{ text-align:center; font-size:24px; margin-bottom:15px; color:#1b5e20; }
-.row{ display:flex; gap:15px; }
-.panel{ background:white; padding:15px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
-.left{ width:35%; }
-.right{ width:65%; position:relative; }
-#map{ width:100%; height:500px; border-radius:10px; }
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    padding:0;
+    font-family:Arial;
+    background:#f5f5f5;
+}
+
+.container{
+    width:95%;
+    margin:auto;
+    padding:15px;
+}
+
+.title{
+    text-align:center;
+    font-size:24px;
+    margin-bottom:15px;
+    color:#1b5e20;
+}
+
+.row{
+    display:flex;
+    gap:15px;
+}
+
+.panel{
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.left{
+    width:35%;
+}
+
+.right{
+    width:65%;
+    position:relative;
+}
+
+#map{
+    width:100%;
+    height:500px;
+    border-radius:10px;
+}
+
 @media(max-width:700px){
-    .row{ flex-direction:column; }
-    .left,.right{ width:100%; }
-    #map{ height:350px; }
-    .title{ font-size:18px; }
+
+    .row{
+        flex-direction:column;
+    }
+
+    .left,
+    .right{
+        width:100%;
+    }
+
+    #map{
+        height:350px;
+    }
+
+    .title{
+        font-size:18px;
+    }
 }
-button{ width:100%; padding:12px; border:none; background:#1b5e20; color:white; border-radius:8px; cursor:pointer; margin-top:10px; font-size:15px; }
-button:hover{ background:#2e7d32; }
-.file-label{ display:flex; align-items:center; gap:10px; background:#f1f8e9; border:2px dashed #81c784; border-radius:8px; padding:12px; cursor:pointer; }
-.file-label input{ display:none; }
-#fileName{ margin-top:5px; font-size:12px; color:#555; }
-.result{ margin-top:15px; padding:12px; background:#e8f5e9; border-radius:8px; }
-#contactBtn{ position:fixed; bottom:20px; left:20px; z-index:1000; width:auto; padding:12px 20px; border-radius:50px; }
-.popup{ display:none; position:fixed; z-index:2000; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.5); }
-.popup-content{ background:white; width:90%; max-width:400px; padding:20px; border-radius:12px; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; }
-.closeBtn{ float:right; font-size:28px; cursor:pointer; }
-#previewWrapper img{ width:100%; margin-top:10px; border-radius:10px; max-height:220px; object-fit:cover; }
-#mapOverlay{ display:none; position:absolute; inset:0; background:rgba(255,255,255,0.6); z-index:500; border-radius:10px; align-items:center; justify-content:center; font-weight:bold; color:#1b5e20; }
-#mapOverlay.visible{ display:flex; }
-.leaflet-popup-content-wrapper{ border-radius:12px; padding:4px; font-size:14px; }
-.leaflet-popup-content{ margin:10px 12px; line-height:1.5; }
-.leaflet-popup-tip{ background:white; }
-.leaflet-container{ z-index:1; }
+
+button{
+    width:100%;
+    padding:12px;
+    border:none;
+    background:#1b5e20;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+    margin-top:10px;
+    font-size:15px;
+}
+
+button:hover{
+    background:#2e7d32;
+}
+
+.file-label{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:#f1f8e9;
+    border:2px dashed #81c784;
+    border-radius:8px;
+    padding:12px;
+    cursor:pointer;
+}
+
+.file-label input{
+    display:none;
+}
+
+#fileName{
+    margin-top:5px;
+    font-size:12px;
+    color:#555;
+}
+
+.result{
+    margin-top:15px;
+    padding:12px;
+    background:#e8f5e9;
+    border-radius:8px;
+}
+
+#contactBtn{
+    position:fixed;
+    bottom:20px;
+    left:20px;
+    z-index:1000;
+    width:auto;
+    padding:12px 20px;
+    border-radius:50px;
+}
+
+.popup{
+    display:none;
+    position:fixed;
+    z-index:2000;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+}
+
+.popup-content{
+    background:white;
+    width:90%;
+    max-width:400px;
+    padding:20px;
+    border-radius:12px;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+}
+
+.closeBtn{
+    float:right;
+    font-size:28px;
+    cursor:pointer;
+}
+
+#previewWrapper img{
+    width:100%;
+    margin-top:10px;
+    border-radius:10px;
+    max-height:220px;
+    object-fit:cover;
+}
+
+#mapOverlay{
+    display:none;
+    position:absolute;
+    inset:0;
+    background:rgba(255,255,255,0.6);
+    z-index:500;
+    border-radius:10px;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    color:#1b5e20;
+}
+
+#mapOverlay.visible{
+    display:flex;
+}
+
+/* LEAFLET POPUP */
+
+.leaflet-popup-content-wrapper{
+    border-radius:12px;
+    padding:4px;
+    font-size:14px;
+}
+
+.leaflet-popup-content{
+    margin:10px 12px;
+    line-height:1.5;
+}
+
+.leaflet-popup-tip{
+    background:white;
+}
+
+/* MARKER ANIMATION */
+
 @keyframes markerDrop{
-    0%{ transform:translateY(-30px) scale(0.6); opacity:0; }
-    60%{ transform:translateY(6px) scale(1.1); opacity:1; }
-    100%{ transform:translateY(0) scale(1); opacity:1; }
+
+    0%{
+        transform:translateY(-30px) scale(0.6);
+        opacity:0;
+    }
+
+    60%{
+        transform:translateY(6px) scale(1.1);
+        opacity:1;
+    }
+
+    100%{
+        transform:translateY(0) scale(1);
+        opacity:1;
+    }
 }
+
 </style>
 </head>
+
 <body>
 
 <div class="container">
-    <h1 class="title">🌿 Leaf Identification And Distribution Mapping</h1>
+
+    <h1 class="title">
+        🌿 Leaf Identification And Distribution Mapping
+    </h1>
+
     <div class="row">
 
         <!-- LEFT -->
+
         <div class="panel left">
+
             <h2>Upload Leaf Image</h2>
+
             <label class="file-label">
+
                 <span>📷 Choose Image</span>
-                <input type="file" id="imageInput" accept="image/*">
+
+                <input
+                    type="file"
+                    id="imageInput"
+                    accept="image/*"
+                >
+
             </label>
-            <div id="fileName">No file chosen</div>
-            <div id="previewWrapper"></div>
-            <button onclick="predictLeaf()">Predict And Show Distribution</button>
-            <div class="result" id="result">
-                <p>Species : <b><span id="species">-</span></b></p>
-                <p>Confidence : <b><span id="confidence">-</span></b></p>
-                <p>Matching Trees : <b><span id="treecount">0</span></b></p>
+
+            <div id="fileName">
+                No file chosen
             </div>
+
+            <div id="previewWrapper"></div>
+
+            <button onclick="predictLeaf()">
+                Predict And Show Distribution
+            </button>
+
+            <div class="result" id="result">
+
+                <p>
+                    Species :
+                    <b><span id="species">-</span></b>
+                </p>
+
+                <p>
+                    Confidence :
+                    <b><span id="confidence">-</span></b>
+                </p>
+
+                <p>
+                    Matching Trees :
+                    <b><span id="treecount">0</span></b>
+                </p>
+
+            </div>
+
         </div>
 
         <!-- RIGHT -->
+
         <div class="panel right">
-            <div id="mapOverlay">Plotting locations...</div>
+
+            <div id="mapOverlay">
+                Plotting locations...
+            </div>
+
             <div id="map"></div>
+
         </div>
 
     </div>
+
 </div>
 
-<button id="contactBtn">Contact</button>
+<!-- CONTACT BUTTON -->
+
+<button id="contactBtn">
+    Contact
+</button>
+
+<!-- CONTACT POPUP -->
 
 <div id="contactPopup" class="popup">
+
     <div class="popup-content">
+
         <span class="closeBtn">&times;</span>
+
         <h2>Share Tree Location Data</h2>
-        <p>Send KMZ, KML, SHP or GPX files to:</p>
-        <p><b>speciesidendificationuom@gmail.com</b></p>
-        <button onclick="sendEmail()">Email Now</button>
+
+        <p>
+            Send KMZ, KML, SHP or GPX files to:
+        </p>
+
+        <p>
+            <b>speciesidendificationuom@gmail.com</b>
+        </p>
+
+        <button onclick="sendEmail()">
+            Email Now
+        </button>
+
     </div>
+
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 
 /* MAP */
-const map = L.map('map').setView([12.3133, 76.6130], 16);
+
+const map = L.map('map').setView(
+    [12.3133, 76.6130],
+    16
+);
 
 /* TILE LAYERS */
-const osm          = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'OpenStreetMap' });
-const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',{ attribution:'Google Hybrid' });
-const googleSat    = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{ attribution:'Google Satellite' });
-const esriSat      = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{ attribution:'Esri Satellite' });
+
+const osm = L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+        attribution:'OpenStreetMap'
+    }
+);
+
+const googleHybrid = L.tileLayer(
+    'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+    {
+        attribution:'Google Hybrid'
+    }
+);
+
+const googleSat = L.tileLayer(
+    'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+    {
+        attribution:'Google Satellite'
+    }
+);
+
+const esriSat = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    {
+        attribution:'Esri Satellite'
+    }
+);
 
 googleHybrid.addTo(map);
 
 L.control.layers({
-    "OpenStreetMap"   : osm,
-    "Google Hybrid"   : googleHybrid,
-    "Google Satellite": googleSat,
-    "Esri Satellite"  : esriSat
+
+    "OpenStreetMap":osm,
+    "Google Hybrid":googleHybrid,
+    "Google Satellite":googleSat,
+    "Esri Satellite":esriSat
+
 }).addTo(map);
 
 /* CUSTOM ICON */
+
 const greenIcon = L.divIcon({
+
     className:'green-marker',
-    html:'<div style="width:18px;height:18px;background:#2e7d32;border:3px solid white;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,0.5);"></div>',
+
+    html:`
+        <div style="
+            width:18px;
+            height:18px;
+            background:#2e7d32;
+            border:3px solid white;
+            border-radius:50%;
+            box-shadow:0 2px 5px rgba(0,0,0,0.5);
+        "></div>
+    `,
+
     iconSize:[18,18],
     iconAnchor:[9,9],
     popupAnchor:[0,-12]
@@ -122,105 +415,279 @@ const greenIcon = L.divIcon({
 let markers = [];
 
 /* FILE PREVIEW */
-document.getElementById('imageInput').addEventListener('change', function(){
+
+document
+.getElementById('imageInput')
+.addEventListener('change', function(){
+
     const file = this.files[0];
+
     if(file){
-        document.getElementById('fileName').textContent = file.name;
+
+        document
+        .getElementById('fileName')
+        .textContent = file.name;
+
         const reader = new FileReader();
+
         reader.onload = function(e){
-            document.getElementById('previewWrapper').innerHTML = `<img src="${e.target.result}">`;
+
+            document
+            .getElementById('previewWrapper')
+            .innerHTML =
+            `<img src="${e.target.result}">`;
         };
+
         reader.readAsDataURL(file);
     }
 });
 
-/* DETECT MOBILE */
-const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+/* MOBILE DETECT */
+
+const isMobile =
+/Android|iPhone|iPad|iPod/i
+.test(navigator.userAgent);
 
 /* PREDICT */
+
 async function predictLeaf(){
 
-    const imageFile = document.getElementById('imageInput').files[0];
+    const imageFile =
+    document
+    .getElementById('imageInput')
+    .files[0];
 
-    if(!imageFile){ alert("Choose image first"); return; }
+    if(!imageFile){
+
+        alert("Choose image first");
+        return;
+    }
 
     const formData = new FormData();
-    formData.append('image', imageFile);
 
-    document.getElementById('mapOverlay').classList.add('visible');
+    formData.append(
+        'image',
+        imageFile
+    );
+
+    document
+    .getElementById('mapOverlay')
+    .classList
+    .add('visible');
 
     try{
-        const response = await fetch('/predict',{ method:'POST', body:formData });
-        const data = await response.json();
 
-        document.getElementById('species').innerText   = data.class;
-        document.getElementById('confidence').innerText = data.confidence + "%";
-        document.getElementById('treecount').innerText  = data.points ? data.points.length : 0;
+        const response =
+        await fetch('/predict',{
 
-        markers.forEach(marker => map.removeLayer(marker));
+            method:'POST',
+            body:formData
+        });
+
+        if(!response.ok){
+
+            throw new Error("Server Error");
+        }
+
+        const data =
+        await response.json();
+
+        document
+        .getElementById('species')
+        .innerText = data.class;
+
+        document
+        .getElementById('confidence')
+        .innerText =
+        data.confidence + "%";
+
+        document
+        .getElementById('treecount')
+        .innerText =
+        data.points ? data.points.length : 0;
+
+        /* REMOVE OLD MARKERS */
+
+        markers.forEach(marker => {
+
+            map.removeLayer(marker);
+        });
+
         markers = [];
+
+        /* ADD NEW MARKERS */
 
         if(data.points && data.points.length > 0){
 
             data.points.forEach((point, i) => {
+
                 setTimeout(() => {
 
-                    const marker = L.marker([point.lat, point.lon],{ icon:greenIcon }).addTo(map);
+                    const marker = L.marker(
+                        [
+                            Number(point.lat),
+                            Number(point.lon)
+                        ],
+                        {
+                            icon:greenIcon
+                        }
+                    ).addTo(map);
 
                     marker.bindPopup(`
-                        <div style="text-align:center;min-width:140px;">
+                        <div style="
+                            text-align:center;
+                            min-width:140px;
+                        ">
                             <b>${point.name}</b><br>
-                            <small>${point.lat.toFixed(5)}, ${point.lon.toFixed(5)}</small>
-                        </div>
-                    `,{ closeButton:true, autoClose:false, closeOnClick:false, maxWidth:220 });
 
-                    // Desktop: hover opens popup. Mobile: tap opens popup
+                            <small>
+                                ${Number(point.lat).toFixed(5)},
+                                ${Number(point.lon).toFixed(5)}
+                            </small>
+                        </div>
+                    `,{
+                        closeButton:true,
+                        autoClose:false,
+                        closeOnClick:false,
+                        maxWidth:220
+                    });
+
+                    /* POPUP EVENTS */
+
                     if(!isMobile){
-                        marker.on('mouseover', function(){ this.openPopup(); });
-                        marker.on('mouseout',  function(){ this.closePopup(); });
+
+                        marker.on('mouseover', function(){
+
+                            this.openPopup();
+                        });
+
+                        marker.on('mouseout', function(){
+
+                            this.closePopup();
+                        });
                     }
-                    marker.on('click', function(){ this.openPopup(); });
+
+                    marker.on('click', function(){
+
+                        this.openPopup();
+                    });
 
                     markers.push(marker);
 
-                    const el = marker.getElement();
-                    if(el) el.style.animation = 'markerDrop 0.45s cubic-bezier(0.22,1,0.36,1) both';
+                    /* ANIMATION */
+
+                    const el =
+                    marker.getElement();
+
+                    if(el){
+
+                        el.style.animation =
+                        'markerDrop 0.45s cubic-bezier(0.22,1,0.36,1) both';
+                    }
 
                 }, i * 80);
+
             });
 
             setTimeout(() => {
-                const group = L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.2));
-                // On mobile scroll to map
-                if(isMobile) document.getElementById('map').scrollIntoView({ behavior:'smooth' });
+
+                const group =
+                L.featureGroup(markers);
+
+                map.fitBounds(
+                    group.getBounds().pad(0.2)
+                );
+
+                if(isMobile){
+
+                    document
+                    .getElementById('map')
+                    .scrollIntoView({
+                        behavior:'smooth'
+                    });
+                }
+
             }, data.points.length * 80 + 100);
         }
 
-    } catch(error){
+    }
+    catch(error){
+
         console.log(error);
-        alert("Prediction failed. Please try again.");
+
+        alert(
+            "Prediction failed. Please try again."
+        );
     }
 
-    document.getElementById('mapOverlay').classList.remove('visible');
+    document
+    .getElementById('mapOverlay')
+    .classList
+    .remove('visible');
 }
 
+/* FIX MAP RESIZE */
+
+window.addEventListener('resize', () => {
+
+    map.invalidateSize();
+});
+
 /* EMAIL */
+
 function sendEmail(){
-    const email   = "speciesidendificationuom@gmail.com";
-    const subject = "Tree Species Location Data";
-    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${encodeURIComponent(subject)}`,"_blank");
+
+    const email =
+    "speciesidendificationuom@gmail.com";
+
+    const subject =
+    "Tree Species Location Data";
+
+    window.open(
+        `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${encodeURIComponent(subject)}`,
+        "_blank"
+    );
 }
 
 /* CONTACT POPUP */
-const contactBtn   = document.getElementById('contactBtn');
-const contactPopup = document.getElementById('contactPopup');
-const closeBtn     = document.querySelector('.closeBtn');
 
-contactBtn.addEventListener('click', () => { contactPopup.style.display='block'; });
-closeBtn.addEventListener('click',   () => { contactPopup.style.display='none'; });
-window.addEventListener('click', (e) => { if(e.target===contactPopup) contactPopup.style.display='none'; });
+const contactBtn =
+document.getElementById('contactBtn');
+
+const contactPopup =
+document.getElementById('contactPopup');
+
+const closeBtn =
+document.querySelector('.closeBtn');
+
+contactBtn.addEventListener(
+    'click',
+    () => {
+
+        contactPopup.style.display='block';
+    }
+);
+
+closeBtn.addEventListener(
+    'click',
+    () => {
+
+        contactPopup.style.display='none';
+    }
+);
+
+window.addEventListener(
+    'click',
+    (e) => {
+
+        if(e.target===contactPopup){
+
+            contactPopup.style.display='none';
+        }
+    }
+);
 
 </script>
+
 </body>
 </html>
