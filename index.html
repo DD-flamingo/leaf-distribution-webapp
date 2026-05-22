@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+<title>Leaf Identification And Distribution Mapping</title>
+
+<style>
+
+body{
+    margin:0;
+    padding:0;
+    font-family:Arial;
+    background:#f5f5f5;
+}
+
+.container{
+    width:95%;
+    margin:auto;
+    padding:20px;
+}
+
+.title{
+    text-align:center;
+    font-size:32px;
+    margin-bottom:20px;
+    color:#1b5e20;
+}
+
+.row{
+    display:flex;
+    gap:20px;
+}
+
+.panel{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.left{
+    width:35%;
+}
+
+.right{
+    width:65%;
+}
+
+#map{
+    height:600px;
+    width:100%;
+    border-radius:10px;
+}
+
+button{
+    padding:10px 20px;
+    border:none;
+    background:#1b5e20;
+    color:white;
+    border-radius:5px;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+button:hover{
+    background:#2e7d32;
+}
+
+.result{
+    margin-top:20px;
+    padding:15px;
+    background:#e8f5e9;
+    border-radius:8px;
+}
+
+img{
+    width:100%;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+/* CONTACT BUTTON */
+
+#contactBtn{
+    position:fixed;
+    bottom:20px;
+    left:20px;
+    z-index:1000;
+    padding:12px 20px;
+    background:#1b5e20;
+    color:white;
+    border:none;
+    border-radius:50px;
+    cursor:pointer;
+    font-size:16px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.3);
+}
+
+#contactBtn:hover{
+    background:#2e7d32;
+}
+
+/* POPUP */
+
+.popup{
+    display:none;
+    position:fixed;
+    z-index:2000;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+}
+
+.popup-content{
+    background:white;
+    width:400px;
+    max-width:90%;
+    padding:25px;
+    border-radius:12px;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%);
+    text-align:center;
+}
+
+.closeBtn{
+    float:right;
+    font-size:28px;
+    cursor:pointer;
+}
+
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1 class="title">Leaf Identification And Distribution Mapping</h1>
+
+    <div class="row">
+
+        <div class="panel left">
+
+            <h2>Upload Leaf Image</h2>
+
+            <input type="file" id="imageInput" accept="image/*">
+
+            <br>
+
+            <button onclick="predictLeaf()">
+                Predict And Show Distribution
+            </button>
+
+            <div id="preview"></div>
+
+            <div class="result" id="result">
+                <h3>Prediction Result</h3>
+                <p>Species : <span id="species">-</span></p>
+                <p>Confidence : <span id="confidence">-</span></p>
+                <p>Total Matching Trees : <span id="treecount">0</span></p>
+            </div>
+
+        </div>
+
+        <div class="panel right">
+            <div id="map"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- CONTACT BUTTON -->
+<button id="contactBtn">Contact</button>
+
+<!-- POPUP -->
+<div id="contactPopup" class="popup">
+
+    <div class="popup-content">
+
+        <span class="closeBtn">&times;</span>
+
+        <h2>Share Tree Location Data</h2>
+
+        <p>
+            If you find additional tree species locations,
+            you can share your files with us.
+        </p>
+
+        <p>
+            Supported formats:
+            <b>KMZ, KML, SHP, GPX</b>
+        </p>
+
+        <p>
+            Send as attachment to:
+        </p>
+
+        <p>
+            <b>speciesidendificationuom@gmail.com</b>
+        </p>
+
+        <button onclick="sendEmail()">
+            Email Now
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+// MAP SETUP
+
+let map = L.map('map').setView([12.3133, 76.6130], 16);
+
+// TILE LAYERS
+
+const osm = L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    { attribution: 'OpenStreetMap' }
+);
+
+const esriSatellite = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    { attribution: 'Esri World Imagery' }
+);
+
+const esriStreet = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    { attribution: 'Esri Street Map' }
+);
+
+const googleSatellite = L.tileLayer(
+    'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+    { attribution: 'Google Satellite' }
+);
+
+const googleHybrid = L.tileLayer(
+    'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+    { attribution: 'Google Hybrid' }
+);
+
+// DEFAULT LAYER
+googleHybrid.addTo(map);
+
+// LAYER SWITCHER
+
+const baseMaps = {
+    "OpenStreetMap"  : osm,
+    "Google Hybrid"  : googleHybrid,
+    "Google Satellite": googleSatellite,
+    "Esri Satellite" : esriSatellite,
+    "Esri Street"    : esriStreet
+};
+
+L.control.layers(baseMaps).addTo(map);
+
+// MARKERS ARRAY
+
+let markers = [];
+
+// IMAGE PREVIEW
+
+document.getElementById('imageInput').addEventListener('change', function(){
+
+    const file = this.files[0];
+
+    if(file){
+
+        const reader = new FileReader();
+
+        reader.onload = function(e){
+
+            document.getElementById('preview').innerHTML = `
+                <img src="${e.target.result}"
+                     style="width:100%;
+                            border-radius:10px;
+                            margin-top:15px;
+                            max-height:250px;
+                            object-fit:cover;">
+            `;
+        }
+
+        reader.readAsDataURL(file);
+    }
+});
+
+// PREDICT FUNCTION
+
+async function predictLeaf(){
+
+    const imageInput = document.getElementById('imageInput');
+    const imageFile  = imageInput.files[0];
+
+    if(!imageFile){
+        alert("Please upload an image first");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('image', imageFile);
+
+    try{
+
+        document.getElementById('species').innerText    = 'Predicting...';
+        document.getElementById('confidence').innerText = '...';
+        document.getElementById('treecount').innerText  = '...';
+
+        const response = await fetch('http://127.0.0.1:5000', {
+            method : 'POST',
+            body   : formData
+        });
+
+        const data = await response.json();
+
+        console.log(data);
+
+        document.getElementById('species').innerText    = data.class;
+        document.getElementById('confidence').innerText = data.confidence + "%";
+        document.getElementById('treecount').innerText  = data.points ? data.points.length : 0;
+
+        // CLEAR OLD MARKERS
+
+        markers.forEach(marker => map.removeLayer(marker));
+        markers = [];
+
+        // ADD NEW MARKERS
+
+        if(data.points && data.points.length > 0){
+
+            data.points.forEach(point => {
+
+                const marker = L.marker([point.lat, point.lon]).addTo(map);
+
+                marker.bindPopup(`<b>${point.name}</b>`);
+
+                markers.push(marker);
+            });
+
+            // FIT MAP TO MARKERS
+
+            const group = L.featureGroup(markers);
+
+            map.fitBounds(group.getBounds().pad(0.2));
+        }
+
+    } catch(error){
+
+        console.log(error);
+
+        alert("Prediction Failed - Make sure Flask server is running on port 5000");
+    }
+}
+
+// EMAIL FUNCTION
+
+function sendEmail(){
+
+    const email = "speciesidendificationuom@gmail.com";
+    const subject = "Tree Species Location Data";
+
+    const gmailURL =
+        `https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${encodeURIComponent(subject)}`;
+
+    window.open(gmailURL, "_blank");
+}
+
+// CONTACT POPUP
+
+const contactBtn = document.getElementById('contactBtn');
+const contactPopup = document.getElementById('contactPopup');
+const closeBtn = document.querySelector('.closeBtn');
+
+contactBtn.addEventListener('click', () => {
+    contactPopup.style.display = 'block';
+});
+
+closeBtn.addEventListener('click', () => {
+    contactPopup.style.display = 'none';
+});
+
+window.addEventListener('click', (e) => {
+
+    if(e.target === contactPopup){
+        contactPopup.style.display = 'none';
+    }
+});
+
+</script>
+
+</body>
+</html>
