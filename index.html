@@ -418,7 +418,7 @@ button:active { transform: scale(0.97); }
             <label class="file-label">
                 <span class="icon">📷</span>
                 <span>Tap to choose or capture image</span>
-                <input type="file" id="imageInput" accept="image/*" capture="environment">
+                <input type="file" id="imageInput" accept="image/*">
             </label>
             <div id="fileName">No file chosen</div>
 
@@ -435,10 +435,10 @@ button:active { transform: scale(0.97); }
             </div>
 
             <div class="result hidden" id="result">
-                <h3>Prediction Result</h3>
-                <p>Species : <span id="species">-</span></p>
-                <p>Confidence : <span id="confidence">-</span></p>
-                <p>Total Matching Trees : <span id="treecount">0</span></p>
+                <h3 style="margin:0 0 8px;">Prediction Result</h3>
+                <p style="margin:4px 0;">🌿 Species : <b><span id="species">-</span></b></p>
+                <p style="margin:4px 0;">🎯 Confidence : <b><span id="confidence">-</span></b></p>
+                <p style="margin:4px 0;">📍 Matching Trees : <b><span id="treecount">0</span></b></p>
             </div>
 
         </div>
@@ -473,6 +473,14 @@ button:active { transform: scale(0.97); }
 </div>
 
 <script>
+
+// FIX LEAFLET DEFAULT MARKER ICON (prevents black shadow bug)
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
 
 // MAP SETUP
 let map = L.map('map').setView([12.3133, 76.6130], 16);
