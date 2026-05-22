@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, send_file, request, jsonify
 from flask_cors import CORS
 
 import tensorflow as tf
 import numpy as np
 from PIL import Image
 import geopandas as gpd
+import os
 
 
 # FLASK APP
@@ -12,14 +13,7 @@ import geopandas as gpd
 app = Flask(__name__)
 CORS(app)
 
-
-# LOAD TRAINED MODEL
-model = tf.keras.models.load_model(
-    r"C:\Users\breez\OneDrive\Desktop\treeleaf_identification\best_model_finetuned.keras"
-)
-
-print("MODEL LOADED SUCCESSFULLY")
-print("MODEL INPUT SHAPE:", model.input_shape)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 # CLASS NAMES
@@ -33,19 +27,40 @@ leaf_names = [
 ]
 
 
-# LOAD SHP FILE ONCE AT STARTUP
+# LAZY MODEL LOADING
+# Model is NOT loaded at startup - only when first prediction is made
+# This saves RAM and prevents crashes on free hosting
 
-gdf = gpd.read_file(
-    r"E:\Third_Sem\spices_identification\Trees_Waypoints\UOM_Treepoints.shp"
-)
+model = None
+
+def get_model():
+    global model
+    if model is None:
+        print("LOADING MODEL FOR THE FIRST TIME...")
+        model = tf.keras.models.load_model(
+            os.path.join(BASE_DIR, "best_model_finetuned.keras")
+        )
+        print("MODEL LOADED SUCCESSFULLY")
+        print("MODEL INPUT SHAPE:", model.input_shape)
+    return model
+
+
+# LOAD SHP FILE ONCE AT STARTUP
+# SHP is small (1MB) so safe to load at startup
+
+shp_path = os.path.join(BASE_DIR, "UOM_Treepoints", "UOM_Treepoints.shp")
+
+gdf = gpd.read_file(shp_path)
 
 print("SHP LOADED. TOTAL POINTS:", len(gdf))
 
 
 # HOME PAGE
+
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return send_file(os.path.join(BASE_DIR, 'index.html'))
+
 
 # PREDICTION API
 
@@ -56,11 +71,9 @@ def predict():
         if 'image' not in request.files:
             return jsonify({'error': 'Image file missing'})
 
-        
         # READ AND PREPROCESS IMAGE
         # MODEL HAS Rescaling(1./255) INSIDE
         # SO SEND RAW PIXELS - NO preprocess_input
-       
 
         image_file = request.files['image']
         image = Image.open(image_file).convert('RGB')
@@ -70,8 +83,9 @@ def predict():
         img_array = np.expand_dims(img_array, axis=0)
 
         # MODEL PREDICTION
+        # get_model() loads model only on first call, reuses after that
 
-        prediction = model.predict(img_array)[0]
+        prediction = get_model().predict(img_array)[0]
 
         print("RAW PREDICTION:", prediction)
         print("ALL CLASS SCORES:", {
@@ -86,6 +100,7 @@ def predict():
         print("CONFIDENCE:", confidence)
 
         # REJECT LOW CONFIDENCE
+
         if confidence < 50:
             return jsonify({
                 'class': 'Uncertain',
@@ -94,7 +109,6 @@ def predict():
                 'message': 'Low confidence - try a clearer image'
             })
 
-        
         # MATCH SHP POINTS
         # FIRST 4 LETTERS MATCHING
 
@@ -133,4 +147,4 @@ def predict():
 # RUN FLASK SERVER
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
