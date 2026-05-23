@@ -233,7 +233,7 @@ button:hover{
 <div class="container">
 
     <h1 class="title">
-        🌿 Leaf Identification And Distribution Mapping
+        Leaf Identification and Distribution Mapping of Trees in Manasagangotri Campus, University of Mysore
     </h1>
 
     <div class="row">
@@ -246,7 +246,7 @@ button:hover{
 
             <label class="file-label">
 
-                <span>📷 Choose Image</span>
+                <span>Select Image</span>
 
                 <input
                     type="file"
@@ -263,7 +263,7 @@ button:hover{
             <div id="previewWrapper"></div>
 
             <button onclick="predictLeaf()">
-                Predict And Show Distribution
+                Predict & Show Distribution
             </button>
 
             <div class="result">
@@ -349,18 +349,18 @@ button:hover{
 
 <script>
 
-/* =========================
-   MAP
-========================= */
+
+//    MAP
+
 
 const map = L.map('map').setView(
     [12.3133, 76.6130],
     16
 );
 
-/* =========================
-   TILE LAYERS
-========================= */
+
+//    TILE LAYERS
+
 
 const osm = L.tileLayer(
     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -399,9 +399,9 @@ L.control.layers({
     "Esri Satellite":esriSatellite
 }).addTo(map);
 
-/* =========================
-   CUSTOM ICON
-========================= */
+
+//    CUSTOM ICON
+
 
 const greenIcon = L.divIcon({
 
@@ -423,15 +423,14 @@ const greenIcon = L.divIcon({
     popupAnchor:[0,-12]
 });
 
-/* =========================
-   MARKERS
-========================= */
+
+//    MARKERS
+
 
 let markers = [];
 
-/* =========================
-   IMAGE PREVIEW
-========================= */
+//    IMAGE PREVIEW
+
 
 document
 .getElementById('imageInput')
@@ -459,9 +458,9 @@ document
     }
 });
 
-/* =========================
-   PREDICT FUNCTION
-========================= */
+
+//    PREDICT FUNCTION
+
 
 async function predictLeaf(){
 
@@ -618,9 +617,8 @@ function sendEmail(){
     window.open(gmailURL, "_blank");
 }
 
-/* =========================
-   CONTACT POPUP
-========================= */
+//    CONTACT POPUP
+
 
 const contactBtn =
 document.getElementById('contactBtn');
@@ -658,9 +656,9 @@ window.addEventListener(
     }
 );
 
-/* =========================
-   FIX MAP RESIZE
-========================= */
+
+//    FIX MAP RESIZE
+
 
 window.addEventListener('resize', () => {
 
