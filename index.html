@@ -224,6 +224,39 @@ button:hover{
     }
 }
 
+/* ── LOCATION BUTTON ── */
+
+#locateBtn{
+    position:absolute;
+    bottom:12px;
+    right:12px;
+    z-index:1000;
+    width:auto;
+    padding:9px 16px;
+    background:#1b5e20;
+    border-radius:50px;
+    font-size:13px;
+    box-shadow:0 3px 8px rgba(0,0,0,0.3);
+    margin-top:0;
+    white-space:nowrap;
+}
+
+#locateBtn:hover{
+    background:#1b5e20;
+}
+
+#locateBtn:disabled{
+    background:#90a4ae;
+    cursor:not-allowed;
+}
+
+/* ── BLUE PULSE DOT ── */
+
+@keyframes bluePulse{
+    0%,100%{ box-shadow:0 0 0 4px rgba(21,101,192,0.35); }
+    50%    { box-shadow:0 0 0 9px rgba(21,101,192,0.1);  }
+}
+
 </style>
 
 </head>
@@ -296,6 +329,11 @@ button:hover{
             </div>
 
             <div id="map"></div>
+
+            <!-- LOCATION BUTTON inside map panel -->
+            <button id="locateBtn" onclick="locateMe()">
+                 My Location
+            </button>
 
         </div>
 
@@ -424,10 +462,96 @@ const greenIcon = L.divIcon({
 });
 
 
+//    LOCATION ICON — arrow when heading known, dot when not
+
+
+function makeLocationIcon(heading){
+
+    // If heading is available, show arrow pointing in direction of movement
+    if(heading !== null && heading !== undefined && !isNaN(heading)){
+
+        return L.divIcon({
+            className:'',
+            html:`
+                <div style="
+                    width:36px;
+                    height:36px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    transform:rotate(${heading}deg);
+                    filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+                ">
+                    <svg width="36" height="36" viewBox="0 0 36 36">
+                        <!-- Outer pulse ring -->
+                        <circle cx="18" cy="18" r="16"
+                            fill="rgba(21,101,192,0.15)"
+                            stroke="rgba(21,101,192,0.4)"
+                            stroke-width="1"/>
+                        <!-- Blue circle center -->
+                        <circle cx="18" cy="18" r="8"
+                            fill="#1565c0"
+                            stroke="white"
+                            stroke-width="2.5"/>
+                        <!-- Arrow pointing up (rotated by heading) -->
+                        <polygon
+                            points="18,4 23,16 18,13 13,16"
+                            fill="white"
+                            opacity="0.95"/>
+                    </svg>
+                </div>
+            `,
+            iconSize:[36,36],
+            iconAnchor:[18,18],
+            popupAnchor:[0,-20]
+        });
+
+    } else {
+
+        // No heading — show plain pulsing blue dot
+        return L.divIcon({
+            className:'',
+            html:`
+                <div style="
+                    width:36px;
+                    height:36px;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                ">
+                    <svg width="36" height="36" viewBox="0 0 36 36">
+                        <circle cx="18" cy="18" r="16"
+                            fill="rgba(21,101,192,0.15)"
+                            stroke="rgba(21,101,192,0.4)"
+                            stroke-width="1"/>
+                        <circle cx="18" cy="18" r="8"
+                            fill="#1565c0"
+                            stroke="white"
+                            stroke-width="2.5"/>
+                    </svg>
+                </div>
+            `,
+            iconSize:[36,36],
+            iconAnchor:[18,18],
+            popupAnchor:[0,-20]
+        });
+    }
+}
+
+
 //    MARKERS
 
 
 let markers = [];
+
+
+//    LOCATION VARS
+
+
+let locationMarker = null;
+let locationCircle = null;
+let locationWatcher = null;
+
 
 //    IMAGE PREVIEW
 
@@ -598,6 +722,100 @@ async function predictLeaf(){
     .classList
     .remove('visible');
 }
+
+
+//    MY LOCATION FUNCTION
+
+
+function locateMe(){
+
+    if(!navigator.geolocation){
+        alert("Geolocation not supported by your browser.");
+        return;
+    }
+
+    const btn = document.getElementById('locateBtn');
+    btn.textContent = '🔄 Locating...';
+    btn.disabled = true;
+
+    // Clear previous location layers
+    if(locationMarker){ map.removeLayer(locationMarker); locationMarker = null; }
+    if(locationCircle) { map.removeLayer(locationCircle);  locationCircle  = null; }
+
+    // Stop previous watcher
+    if(locationWatcher){
+        navigator.geolocation.clearWatch(locationWatcher);
+        locationWatcher = null;
+    }
+
+    // Watch position — updates in real time as user moves
+    locationWatcher = navigator.geolocation.watchPosition(
+
+        function(pos){
+
+            const lat     = pos.coords.latitude;
+            const lon     = pos.coords.longitude;
+            const acc     = pos.coords.accuracy;
+            const heading = pos.coords.heading; // degrees 0-360, null if stationary
+
+            // Remove old layers
+            if(locationMarker){ map.removeLayer(locationMarker); }
+            if(locationCircle) { map.removeLayer(locationCircle);  }
+
+            // Accuracy circle
+            locationCircle = L.circle([lat, lon],{
+                radius      : acc,
+                color       : '#1b5e20',
+                fillColor   : '#1b5e20',
+                fillOpacity : 0.12,
+                weight      : 1
+            }).addTo(map);
+
+            // Arrow marker — rotates based on heading direction
+            locationMarker = L.marker([lat, lon],{
+                icon: makeLocationIcon(heading)
+            })
+            .addTo(map)
+            .bindPopup(`
+                <div style="text-align:center;">
+                    <b>📍 You are here</b><br>
+                    <small>Accuracy : ±${Math.round(acc)} m</small><br>
+                    ${heading !== null && !isNaN(heading)
+                        ? `<small>Heading : ${Math.round(heading)}°</small>`
+                        : '<small>Move to see direction</small>'
+                    }
+                </div>
+            `)
+            .openPopup();
+
+            // Pan map to user
+            map.setView([lat, lon], 17);
+
+            btn.textContent = 'My Location';
+            btn.disabled    = false;
+            btn.style.background = '#1b5e20';
+        },
+
+        function(err){
+
+            btn.textContent = 'My Location';
+            btn.disabled    = false;
+
+            if(err.code === 1){
+                alert("Location access denied.\nPlease allow location permission in your browser.");
+            } else {
+                alert("Could not get your location. Please try again.");
+            }
+        },
+
+        {
+            enableHighAccuracy : true,
+            timeout            : 15000,
+            maximumAge         : 0  // always get fresh position for heading
+        }
+    );
+}
+
 
 /* =========================
    EMAIL FUNCTION
