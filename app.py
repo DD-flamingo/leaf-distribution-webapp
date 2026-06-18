@@ -1,4 +1,4 @@
-from flask import Flask, send_file, request, jsonify
+from flask import Flask, send_file, request, jsonify, send_from_directory
 from flask_cors import CORS
 
 import tensorflow as tf
@@ -60,6 +60,13 @@ print("SHP LOADED. TOTAL POINTS:", len(gdf))
 @app.route('/')
 def home():
     return send_file(os.path.join(BASE_DIR, 'index.html'))
+
+
+# SERVE STATIC FILES (favicon, images, etc.)
+
+@app.route('/static/<path:filename>')
+def static_files(filename):
+    return send_from_directory(os.path.join(BASE_DIR, 'static'), filename)
 
 
 # PREDICTION API
